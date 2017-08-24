@@ -18,18 +18,24 @@
 #
 
 class Car < ApplicationRecord
-    before_validation :upper_vin, :check_vin
-    
-    validates :make, :model, :year, :vin, presence: true
-    validates :vin, length: {is: 17}
-    
-    private
-    
-    def upper_vin
-        self.vin = self.vin.upcase if self.vin
-    end
-    
-    def check_vin
-        self.errors.add(:vin, 'invalid representation') if self.vin && self.vin !~ /^[0-9A-Z]{17}$/
-    end
+  before_validation :upper, :check_vin
+
+  validates :make, :model, :year, :vin, presence: true
+  validates :vin, length: {is: 17}
+  validates :vin, uniqueness: true
+  validates :make, uniqueness: {scope: [:model, :year]}
+  validates :year, inclusion: {in: 1900..2020, message: 'is not between 1900 and 2020'}
+  validates :category, inclusion: {in: ['CAR', 'SPORT', 'SUV', 'TRUCK']}
+  validates :cylinders, inclusion: {in: [4, 6, 8, 12], message: 'is not one of 4, 6, 8 or 12'}
+
+  private
+
+  def upper
+    self.vin = self.vin.upcase if self.vin
+    self.category = self.category.upcase if self.category
+  end
+
+  def check_vin
+    self.errors.add(:vin, 'invalid representation') if self.vin && self.vin !~ /^[0-9A-Z]{17}$/
+  end
 end

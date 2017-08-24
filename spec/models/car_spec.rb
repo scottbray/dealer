@@ -31,10 +31,11 @@ RSpec.describe Car, type: :model do
   describe '#save' do
     context 'happy path' do
       it 'saves a car' do
-        c = Car.new(make: 'Ford', model: 'Fusion', year: 2015, vin: '0123456789abcdefg')
+        c = Car.new(make: 'Ford', model: 'Fusion', year: 2015, vin: '0123456789abcdefg', category: 'car', cylinders: 4)
         c.save
         expect(c.id).to_not be_nil
         expect(c.vin).to eql('0123456789ABCDEFG')
+        expect(c.category).to eql('CAR')
         expect(c.created_at).to_not be_nil
         expect(c.updated_at).to_not be_nil
       end
@@ -58,6 +59,36 @@ RSpec.describe Car, type: :model do
         c.save
         expect(c.id).to be_nil
         expect(c.errors[:vin].first).to eql("invalid representation")
+      end
+      it 'vin number already taken - will not save' do
+        c = Car.new(make: 'Ford', model: 'Fusion', year: 2015, vin: 'A0000000000000001')
+        c.save
+        expect(c.id).to be_nil
+        expect(c.errors[:vin].first).to eql("has already been taken")
+      end
+      it 'make, model, year already taken - will not save' do
+        c = Car.new(make: 'Toyota', model: 'Camry', year: 2015, vin: 'B0000000000000001')
+        c.save
+        expect(c.id).to be_nil
+        expect(c.errors[:make].first).to eql("has already been taken")
+      end
+      it 'year is too old - will not save' do
+        c = Car.new(make: 'Toyota', model: 'Camry', year: 1800, vin: 'B0000000000000001')
+        c.save
+        expect(c.id).to be_nil
+        expect(c.errors[:year].first).to eql("is not between 1900 and 2020")
+      end
+      it 'category is invalid - will not save' do
+        c = Car.new(make: 'Toyota', model: 'Camry', year: 1800, vin: 'B0000000000000001', category: 'bad')
+        c.save
+        expect(c.id).to be_nil
+        expect(c.errors[:category].first).to eql("is not included in the list")
+      end
+      it 'cylinders is invalid - will not save' do
+        c = Car.new(make: 'Toyota', model: 'Camry', year: 1800, vin: 'B0000000000000001', cylinders: 5)
+        c.save
+        expect(c.id).to be_nil
+        expect(c.errors[:cylinders].first).to eql("is not one of 4, 6, 8 or 12")
       end
     end
   end

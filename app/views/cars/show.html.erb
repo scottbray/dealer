@@ -1,0 +1,25 @@
+<h1>Car</h1>
+
+<%= link_to 'Edit', edit_car_path(@car) %>
+<%= link_to 'Delete', @car, method: :delete %>
+
+<table class="table table-striped">
+  <thead class="thead-inverse">
+    <tr>
+      <th>Vin</th>
+      <th>Make</th>
+      <th>Model</th>
+      <th>Year</th>
+      </tr>
+  </thead>
+  <tbody>
+ 
+      <tr>
+        <td><%= @car.vin %></td>
+        <td><%= @car.make %></td>
+        <td><%= @car.model %></td>
+        <td><%= @car.year %></td>
+      </tr>
+     
+  </tbody>
+</table>
